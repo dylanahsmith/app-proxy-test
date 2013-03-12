@@ -1,0 +1,19 @@
+{
+  "author": "Dylan Smith <dylan.smith@shopify.com>",
+  "name": "app-proxy-test",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dylanahsmith/app-proxy-test.git"
+  },
+  "engines": {
+    "node": "~0.8.21",
+    "npm": "~1.2.11"
+  },
+  "dependencies": {
+    "connect": "2.4.6"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
