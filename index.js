@@ -9,12 +9,12 @@ var port = process.env.PORT || 5000;
 
 function plain(request, response, next) {
   response.writeHead(200, {'Content-Type': 'text/plain'});
-  response.end("Direct response (e.g. {{ 'now' | date }} isn't rendered)");
+  response.end("Direct response (e.g. {{ 'now' | date '%Y-%m-%d' }} isn't rendered)");
 }
 
 function liquid(request, response, next) {
   response.writeHead(200, {'Content-Type': 'application/liquid'});
-  response.end("Rendered page for {{ shop.name }} at {{ 'now' | date }}");
+  response.end("Rendered page for {{ shop.name }} at {{ 'now' | date '%Y-%m-%d' }}");
 }
 
 function notFound(request, response, next) {
