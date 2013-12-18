@@ -41,6 +41,23 @@ function hangup(request, response, next) {
   response.destroy();
 }
 
+function slow(request, response, next) {
+  var i, duration;
+  response.writeHead(200, {'Content-Type': 'text/plain'});
+  duration = +request.query.duration;
+  i = 0;
+  callback = function() {
+    response.write(i.toString())
+    i += 1;
+    if (i > duration) {
+      response.end();
+    } else {
+      setTimeout(callback, 1000);
+    }
+  }
+  callback();
+}
+
 function delay(request, response, next) {
   if (request.query.delay) {
     setTimeout(function() {
@@ -128,6 +145,7 @@ function server(port) {
   proxy.use('/moved', moved);
   proxy.use('/error', error);
   proxy.use('/hangup', hangup);
+  proxy.use('/slow', slow);
   proxy.use(plain);
   app.use("/proxy", proxy);
   app.use("/install", install);
