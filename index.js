@@ -23,12 +23,12 @@ function notFound(request, response, next) {
 }
 
 function redirect(request, response, next) {
-  response.writeHead(301, {'Location': '/plain'});
+  response.writeHead(301, {'Location': '/proxy/plain'});
   response.end('Temporarily Moved');
 }
 
 function moved(request, response, next) {
-  response.writeHead(301, {'Location': '/liquid'});
+  response.writeHead(301, {'Location': '/proxy/liquid'});
   response.end('Permanently Moved');
 }
 
