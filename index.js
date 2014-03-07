@@ -138,6 +138,7 @@ function server(port) {
   if (process.env.NODE_ENV !== 'test')
     app.use(connect.logger());
   app.use(delay);
+  app.use(connect.compress({'filter': function(req, res){ return true; }}));
   var proxy = connect();
   proxy.use('/liquid', liquid);
   proxy.use('/404', notFound);
