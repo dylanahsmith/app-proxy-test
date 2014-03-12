@@ -2,7 +2,7 @@
 
 var http = require('http');
 var https = require('https');
-var querystring = require('querystring')
+var querystring = require('querystring');
 var connect = require('connect');
 
 var port = process.env.PORT || 5000;
@@ -47,14 +47,14 @@ function slow(request, response, next) {
   duration = +request.query.duration;
   i = 0;
   callback = function() {
-    response.write(i.toString())
+    response.write(i.toString());
     i += 1;
     if (i > duration) {
       response.end();
     } else {
       setTimeout(callback, 1000);
     }
-  }
+  };
   callback();
 }
 
@@ -115,7 +115,7 @@ function install(request, response, next) {
     if (shopifyRes.statusCode >= 200 && shopifyRes.statusCode < 300) {
       var buf = '';
       shopifyRes.setEncoding('utf8');
-      shopifyRes.on('data', function(chunk){ buf += chunk });
+      shopifyRes.on('data', function(chunk){ buf += chunk; });
       shopifyRes.on('end', function(){
         var data = JSON.parse(buf);
         console.log(request.query.shop + ' access token: ' + data.access_token);
@@ -152,11 +152,11 @@ function server(port) {
   app.use("/install", install);
   app.use("/", homepage);
 
-  var server = http.createServer(app);
-  server.listen(port, function() {
+  var s = http.createServer(app);
+  s.listen(port, function() {
     console.log('Listening on ' + port);
   });
-  return server;
+  return s;
 }
 
 if (require.main == module) {
