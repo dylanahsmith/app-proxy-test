@@ -14,7 +14,7 @@ function plain(request, response, next) {
 
 function liquid(request, response, next) {
   response.writeHead(200, {'Content-Type': 'application/liquid'});
-  response.end("Rendered page for {{ shop.name }} at {{ 'now' | date '%Y-%m-%d' }}");
+  response.end("Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}");
 }
 
 function notFound(request, response, next) {
