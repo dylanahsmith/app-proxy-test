@@ -17,6 +17,17 @@ function liquid(request, response, next) {
   response.end("Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}");
 }
 
+function echo(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'text/plain'});
+
+  response.write(request.method + " " + request.url + " HTTP/" + request.httpVersion + "\r\n");
+  for (var name in request.headers) {
+    response.write(name + ": " + request.headers[name] + "\r\n");
+  }
+  response.write("\r\n");
+  request.pipe(response);
+}
+
 function notFound(request, response, next) {
   response.writeHead(404, {'Content-Type': 'text/plain'});
   response.end('App Page Not Found');
@@ -141,6 +152,7 @@ function server(port) {
   app.use(connect.compress({'filter': function(req, res){ return true; }}));
   var proxy = connect();
   proxy.use('/liquid', liquid);
+  proxy.use('/echo', echo);
   proxy.use('/404', notFound);
   proxy.use('/redirect', redirect);
   proxy.use('/moved', moved);
