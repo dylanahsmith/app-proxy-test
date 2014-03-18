@@ -18,10 +18,7 @@ function liquid(request, response, next) {
 }
 
 function echo(request, response, next) {
-  response.writeHead(200, {
-    'Content-Type': 'text/plain',
-    'X-Proxify-Ip': request.socket.remoteAddress
-  });
+  response.writeHead(200, {'Content-Type': 'text/plain'});
 
   response.write(request.method + " " + request.url + " HTTP/" + request.httpVersion + "\r\n");
   for (var name in request.headers) {
