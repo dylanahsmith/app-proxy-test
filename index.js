@@ -20,7 +20,7 @@ function liquid(request, response, next) {
 function echo(request, response, next) {
   response.writeHead(200, {'Content-Type': 'text/plain'});
 
-  response.write(request.method + " " + request.url + " HTTP/" + request.httpVersion + "\r\n");
+  response.write(request.method + " /echo" + request.url + " HTTP/" + request.httpVersion + "\r\n");
   for (var name in request.headers) {
     response.write(name + ": " + request.headers[name] + "\r\n");
   }
