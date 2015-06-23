@@ -17,6 +17,27 @@ function liquid(request, response, next) {
   response.end("Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}");
 }
 
+function chunked(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'application/liquid'});
+  chunks = "Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}".split(" ");
+  response.write(chunks[0]);
+  for (var i = 1; i < chunks.length; i++) {
+      response.write(" " + chunks[i]);
+  }
+  response.end()
+}
+
+function closeConnection(request, response, next) {
+  response.useChunkedEncodingByDefault = false;
+  response.writeHead(200, {'Content-Type': 'application/liquid'});
+  chunks = "Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}".split(" ");
+  response.write(chunks[0]);
+  for (var i = 1; i < chunks.length; i++) {
+      response.write(" " + chunks[i]);
+  }
+  response.end()
+}
+
 function echo(request, response, next) {
   response.writeHead(200, {'Content-Type': 'text/plain'});
 
@@ -152,6 +173,8 @@ function server(port) {
   app.use(connect.compress({'filter': function(req, res){ return true; }}));
   var proxy = connect();
   proxy.use('/liquid', liquid);
+  proxy.use('/chunked', chunked);
+  proxy.use('/close', closeConnection);
   proxy.use('/echo', echo);
   proxy.use('/404', notFound);
   proxy.use('/redirect', redirect);
