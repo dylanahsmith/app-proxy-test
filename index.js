@@ -17,6 +17,16 @@ function liquid(request, response, next) {
   response.end("Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}");
 }
 
+function liquid_js(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'application/liquid'});
+  response.end('{% layout none %}alert("{{ shop.name }}")');
+}
+
+function liquid_json(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'application/liquid'});
+  response.end('{% layout none %}{ "shop": "{{ shop.name }}" }');
+}
+
 function chunked(request, response, next) {
   response.writeHead(200, {'Content-Type': 'application/liquid'});
   chunks = "Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}".split(" ");
@@ -116,7 +126,7 @@ function homepage(request, response, next) {
     var params  = {
       client_id: process.env.SHOPIFY_API_KEY,
       scope: 'read_content',
-      redirect_uri: 'http://app-proxy-test.herokuapp.com/install'
+      redirect_uri: 'http://app-proxy-test2.herokuapp.com/install'
     };
     authorizeUrl = "https://www.shopify.com/admin/oauth/authorize?" + querystring.stringify(params);
   }
@@ -172,6 +182,8 @@ function server(port) {
   app.use(delay);
   app.use(connect.compress({'filter': function(req, res){ return true; }}));
   var proxy = connect();
+  proxy.use('/liquid.json', liquid_json);
+  proxy.use('/liquid.js', liquid_js);
   proxy.use('/liquid', liquid);
   proxy.use('/chunked', chunked);
   proxy.use('/close', closeConnection);
