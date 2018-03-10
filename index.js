@@ -27,6 +27,21 @@ function liquid_json(request, response, next) {
   response.end('{% layout none %}{ "shop": "{{ shop.name }}" }');
 }
 
+function html_script_tag(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.end('<html><body><script type="text/javascript" src="/proxy/html.js"></script></body></html>');
+}
+
+function html_js(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'text/html'});
+  response.end('alert("test")');
+}
+
+function alert_js(request, response, next) {
+  response.writeHead(200, {'Content-Type': 'text/javascript'});
+  response.end('alert("test")');
+}
+
 function chunked(request, response, next) {
   response.writeHead(200, {'Content-Type': 'application/liquid'});
   chunks = "Rendered page for {{ shop.name }} at {{ 'now' | date: '%Y-%m-%d' }}".split(" ");
@@ -184,6 +199,9 @@ function server(port) {
   var proxy = connect();
   proxy.use('/liquid.json', liquid_json);
   proxy.use('/liquid.js', liquid_js);
+  proxy.use('/html_script_tag', html_script_tag);
+  proxy.use('/html.js', html_js);
+  proxy.use('/alert.js', alert_js);
   proxy.use('/liquid', liquid);
   proxy.use('/chunked', chunked);
   proxy.use('/close', closeConnection);
