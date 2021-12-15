@@ -2,10 +2,9 @@
 
 var http = require('http');
 var https = require('https');
-var querystring = require('querystring');
 var connect = require('connect');
 
-var port = process.env.PORT || 5000;
+var port = process.env.PORT || 8000;
 
 function plain(request, response, next) {
   response.writeHead(200, {'Content-Type': 'text/plain'});
@@ -90,7 +89,7 @@ function moved(request, response, next) {
 }
 
 function error(request, response, next) {
-  response.writeHead(request.query.code || 500);
+  response.writeHead(request.searchParams.get('code') || 500);
   response.end('Error');
 }
 
@@ -101,7 +100,7 @@ function hangup(request, response, next) {
 function slow(request, response, next) {
   var i, duration;
   response.writeHead(200, {'Content-Type': 'text/plain'});
-  duration = +request.query.duration;
+  duration = +request.searchParams.get('duration');
   i = 0;
   callback = function() {
     response.write(i.toString());
@@ -116,10 +115,11 @@ function slow(request, response, next) {
 }
 
 function delay(request, response, next) {
-  if (request.query.delay) {
+  const delay = request.searchParams.get('delay');
+  if (delay) {
     setTimeout(function() {
       next();
-    }, +request.query.delay * 1000);
+    }, +delay * 1000);
   } else {
     next();
   }
@@ -143,13 +143,15 @@ function homepage(request, response, next) {
       scope: 'read_content',
       redirect_uri: 'http://app-proxy-test2.herokuapp.com/install'
     };
-    authorizeUrl = "https://www.shopify.com/admin/oauth/authorize?" + querystring.stringify(params);
+    authorizeUrl = "https://www.shopify.com/admin/oauth/authorize" + request.parsedUrl.search;
   }
   response.end("<html><body><h1>App Proxy Test</h1><p>" + htmlLink("Install", authorizeUrl) + " in your shopify store.</p></body></html>");
 }
 
 function install(request, response, next) {
-  if (!request.query.code || !request.query.shop) {
+  const code = request.searchParams.get('code');
+  const shop = request.searchParams.get('shop');
+  if (!code || !shop) {
     response.writeHead(422);
     response.end();
     return;
@@ -157,11 +159,11 @@ function install(request, response, next) {
   var params = {
     client_id: process.env.SHOPIFY_API_KEY,
     client_secret: process.env.SHOPIFY_API_SECRET,
-    code: request.query.code
+    code: code
   };
   var postBody = JSON.stringify(params);
   var shopifyReq = https.request({
-    host: request.query.shop,
+    host: shop,
     method: "POST",
     path: "/admin/oauth/access_token",
     headers: {
@@ -175,7 +177,7 @@ function install(request, response, next) {
       shopifyRes.on('data', function(chunk){ buf += chunk; });
       shopifyRes.on('end', function(){
         var data = JSON.parse(buf);
-        console.log(request.query.shop + ' access token: ' + data.access_token);
+        console.log(shop + ' access token: ' + data.access_token);
         response.writeHead(301, {'Location': 'https://www.shopify.com/admin/apps'});
         response.end();
       });
@@ -191,11 +193,21 @@ function install(request, response, next) {
 
 function server(port) {
   var app = connect();
-  app.use(connect.query());
-  if (process.env.NODE_ENV !== 'test')
-    app.use(connect.logger());
+
+  app.use(function (req, res, next) {
+    req.parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+    req.searchParams = req.parsedUrl.searchParams;
+    next();
+  });
+
+  if (process.env.NODE_ENV !== 'test') {
+    //app.use(connect.logger()); // connect.logger removed upstream
+  }
   app.use(delay);
-  app.use(connect.compress({'filter': function(req, res){ return true; }}));
+
+  // connect.compress removed upstream
+  //app.use(connect.compress({'filter': function(req, res){ return true; }}));
+
   var proxy = connect();
   proxy.use('/liquid.json', liquid_json);
   proxy.use('/liquid.js', liquid_js);

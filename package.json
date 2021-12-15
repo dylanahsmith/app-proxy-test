@@ -7,11 +7,11 @@
     "url": "git://github.com/dylanahsmith/app-proxy-test.git"
   },
   "engines": {
-    "node": "~0.8.21",
-    "npm": "~1.2.11"
+    "node": "17.x",
+    "npm": "8.x"
   },
   "dependencies": {
-    "connect": "2.4.6"
+    "connect": "^3.7.0"
   },
   "scripts": {
     "start": "node index.js"
